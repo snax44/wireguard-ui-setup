@@ -1,6 +1,10 @@
 # wireguard-ui-setup
 
-A wsimple script to install Wireguard and Wirguard-ui
+A simple script to install Wireguard and Wirguard-ui
+
+**Warning:**  
+- This script was made for on Debian10 only.  
+- If the server is doing something else, please be carrefull about firewall rules.
 
 ## Features
 
@@ -14,7 +18,7 @@ Download the script on your server:
 wget https://gitlab.com/maelj/wireguard-ui-setup/-/raw/master/install.sh?inline=false -O /tmp/install.sh
 ```
 
-_Personalise with your parameters:_
+Personalise with your parameters:  
 
 **wg_port="51820":**  
 **wg_network="10.252.1.0/24":**  
@@ -39,4 +43,5 @@ Open a new ssh connection with port forwarding
 ssh -L 5000:localhost:5000 user@vpn_server_ip
 ```
 
-Access http://localhost:5000 from your favorite browser.
+Access http://localhost:5000 from your favorite browser.  
+(username/password = admin)  
