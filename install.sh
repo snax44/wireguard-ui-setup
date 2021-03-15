@@ -31,6 +31,12 @@ if ! [ $(id -nu) == "root" ]; then
   exit 1
 fi
 
+if [ "$(lsb_release -is)" != "Debian" ] && [ "$(lsb_release -rs)" != "10" ]
+  then
+    echo "This script was made for on Debian10 only."
+    exit 1
+fi
+
 endpoint="server.domain.tld"
 wg_port="51820"
 wg_network="10.252.1.0/24"
