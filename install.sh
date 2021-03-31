@@ -81,6 +81,7 @@ firewall_conf
 wg_conf
 wgui_conf
 
+echo ""
 echo "########################################################################"
 echo "                            Setup done."
 echo ""
@@ -94,6 +95,7 @@ echo "      - ssh -L 5000:localhost:5000 user@myserver.domain.tld"
 echo "      - And browse to http://localhost:5000"
 echo ""
 echo "########################################################################"
+echo ""
 }
 
 function install() {
