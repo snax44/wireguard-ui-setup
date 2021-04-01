@@ -35,3 +35,11 @@ Access http://localhost:5000 from your favorite browser.
 ## wg-quick@wg0.service failed to start
 
 Please check that linux-headers-$(uname -r) was installed propely.
+
+# Credits
+
+- Wireguard:
+   - https://www.wireguard.com
+   - https://github.com/WireGuard
+- Wireguard-ui:
+   - https://github.com/ngoduykhanh/wireguard-ui
