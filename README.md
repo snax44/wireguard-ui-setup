@@ -32,7 +32,7 @@ Access http://localhost:5000 from your favorite browser.
 
 # Troubleshooting
 
-## wg-quick@wg0.service failed to start
+## wg-quick<!-- -->@wg0.service failed to start
 
 Please check that linux-headers-$(uname -r) was installed propely.
 
