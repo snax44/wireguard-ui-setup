@@ -19,7 +19,7 @@ Be sure that the server is fully up to date.
 
 **Download the script on your server:**  
 ```bash
-bash < $(curl -s https://gitlab.com/maelj/wireguard-ui-setup/-/raw/master/install.sh)
+bash <(curl -s https://gitlab.com/maelj/wireguard-ui-setup/-/raw/master/install.sh)
 ```
 
 **Open a new ssh connection with port forwarding:**  
