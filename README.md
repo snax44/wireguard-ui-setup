@@ -1,6 +1,6 @@
 # wireguard-ui-setup
 
-A simple script to install Wireguard and Wirguard-ui
+A simple script to install [Wireguard](https://www.wireguard.com/) and [Wirguard-ui](https://github.com/ngoduykhanh/wireguard-ui)
 
 **Warning:**  
 - This script was made for on Debian10 only.  
