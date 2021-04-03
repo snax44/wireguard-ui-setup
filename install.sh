@@ -199,6 +199,8 @@ function firewall_conf() {
   ip6tables -P OUTPUT DROP
 
   # Backup allrules (old and new)
+  # TODO: Try tu exclude banned IP by Fail2ba
+  # /sbin/iptables-save | grep -v '\-A f2b\-.*\-s.*\-j DROP' > /etc/iptables/rules.v4
   /sbin/iptables-save > /etc/iptables/rules.v4
   /sbin/ip6tables-save > /etc/iptables/rules.v6
 

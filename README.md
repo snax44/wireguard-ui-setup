@@ -43,3 +43,8 @@ Please check that linux-headers-$(uname -r) was installed propely.
    - https://github.com/WireGuard
 - Wireguard-ui:
    - https://github.com/ngoduykhanh/wireguard-ui
+
+
+# TODO:
+- iptables-save backup all rules with IP and not fqdn
+- Possible conflict with Fail2ban chains rules
