@@ -145,6 +145,11 @@ function firewall_conf() {
     mkdir -m 755 /etc/iptables
   fi
 
+  # Stop fail2ban if it present to don't save banned IPs
+  if [ $(which fail2ban-client) ]; then
+    fail2ban-client stop
+  fi
+
   # Backup actual firewall configuration
   /sbin/iptables-save > /etc/iptables/rules.v4.bak
   /sbin/ip6tables-save > /etc/iptables/rules.v6.bak
@@ -199,10 +204,13 @@ function firewall_conf() {
   ip6tables -P OUTPUT DROP
 
   # Backup allrules (old and new)
-  # TODO: Try tu exclude banned IP by Fail2ba
-  # /sbin/iptables-save | grep -v '\-A f2b\-.*\-s.*\-j DROP' > /etc/iptables/rules.v4
   /sbin/iptables-save > /etc/iptables/rules.v4
   /sbin/ip6tables-save > /etc/iptables/rules.v6
+
+  # Restart Fail2ban
+  if [ $(which fail2ban-client) ]; then
+    fail2ban-client start
+  fi
 
   # Make a script for a persistent configuration
   echo "#!/bin/sh
