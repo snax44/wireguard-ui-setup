@@ -83,26 +83,29 @@ wg_conf
 wgui_conf
 
 echo ""
-echo "########################################################################"
+echo "##################################################################################"
 echo "                            Setup done."
 echo ""
 echo "  - Your iptables rules was saved just in case in:"
 echo "      - /etc/iptables/rules.v4.bak"
 echo "      - /etc/iptables/rules.v6.bak"
 echo ""
+echo "  - Due to a possible kernel update, you should check if one reboot is required"
+echo "      - Type 'wg' in command line."
+echo "      - If an error appaired, please reboot."
 echo ""
 echo "  - To access your wireguard-ui please open a new ssh connexion"
 echo "      - ssh -L 5000:localhost:5000 user@myserver.domain.tld"
 echo "      - And browse to http://localhost:5000"
 echo ""
-echo "########################################################################"
+echo "##################################################################################"
 echo ""
 }
 
 function install() {
 
   if [[ ! $BACKPORTS_REPO == "" ]]; then
-    if ! grep -q "^$BACKPORTS_REPO" /etc/apt/sources.list /etc/apt/sources.list.d/*; then
+    if [[ ! grep -q "^$BACKPORTS_REPO" /etc/apt/sources.list /etc/apt/sources.list.d/* ]]; then
       echo ""
       echo "### Enable Backports"
       echo $BACKPORTS_REPO >> /etc/apt/sources.list
