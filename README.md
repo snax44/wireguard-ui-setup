@@ -26,6 +26,14 @@ bash <(curl -s https://gitlab.com/maelj/wireguard-ui-setup/-/raw/master/install.
 ```bash
 ssh -L 5000:localhost:5000 user@vpn_server_ip
 ```
+or directly in your SSH config file:  
+```
+Host myserver
+	hostname myserver.domain.tld
+	IdentityFile ~/.ssh/myprivatekey
+	user myuser
+	LocalForward 5000 localhost:5000
+```
 
 Access http://localhost:5000 from your favorite browser.  
 (username/password = admin)  
@@ -46,5 +54,3 @@ Please check that linux-headers-$(uname -r) was installed propely.
 
 
 # TODO:
-- iptables-save backup all rules with IP and not fqdn
-- Possible conflict with Fail2ban chains rules
