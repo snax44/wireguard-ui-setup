@@ -46,7 +46,7 @@ BACKPORTS_REPO="deb https://deb.debian.org/debian/ buster-backports main" # It's
 
 function main() {
 
-while [[ $ENDPOINT == "" ]]; do
+while [[ -z $ENDPOINT ]]; do
   echo "---"
   read -p "Enpoint (IP or FQDN): " ENDPOINT
 done
@@ -60,12 +60,12 @@ while ! [[ $WG_NETWORK =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{
   read -p "Wireguard network ? [10.252.1.0/24]: " WG_NETWORK
   WG_NETWORK=${WG_NETWORK:-"10.252.1.0/24"}
 done
-while [[ $WG_INTERFACE == "" ]]; do
+while [[ -z $WG_INTERFACE ]]; do
   echo "---"
   read -p "Wireguard interface ? [wg0]: " WG_INTERFACE
   WG_INTERFACE=${WG_INTERFACE:-"wg0"}
 done
-while [[ $SYS_INTERFACE == "" ]]; do
+while [[ -z $SYS_INTERFACE ]]; do
   echo "---"
   read -p "System network interface ? [eth0]: " SYS_INTERFACE
   SYS_INTERFACE=${SYS_INTERFACE:-"eth0"}
