@@ -105,7 +105,7 @@ echo ""
 function install() {
 
   if [[ ! $BACKPORTS_REPO == "" ]]; then
-    if [[ ! grep -q "^$BACKPORTS_REPO" /etc/apt/sources.list /etc/apt/sources.list.d/* ]]; then
+    if ! [[ grep -q "^$BACKPORTS_REPO" /etc/apt/sources.list /etc/apt/sources.list.d/* ]]; then
       echo ""
       echo "### Enable Backports"
       echo $BACKPORTS_REPO >> /etc/apt/sources.list
