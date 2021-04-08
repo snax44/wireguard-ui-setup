@@ -45,6 +45,16 @@ SYSTEMCTL_PATH="/usr/bin/systemctl"
 BACKPORTS_REPO="deb https://deb.debian.org/debian/ buster-backports main" # It's needed for Debian10, leave it blank for Debian11 (BACKPORTS_REPO="")
 
 function main() {
+echo ""
+echo "###########################################################################"
+echo "  - Please make sure that your system is fully up to date and rebooted"
+echo "      - The current running kernel must be the same as installed"
+echo "      - No pending reboot"
+echo "      - You can run the command below and then run again this script"
+echo "          apt update && apt full-upgrade -y && init 6"
+echo ""
+echo "  - Press Ctrl^C to exit or ignore this message and continue."
+echo "###########################################################################"
 
 while [[ -z $ENDPOINT ]]; do
   echo "---"
@@ -90,9 +100,6 @@ echo "  - Your iptables rules was saved just in case in:"
 echo "      - /etc/iptables/rules.v4.bak"
 echo "      - /etc/iptables/rules.v6.bak"
 echo ""
-echo "  - Due to a possible kernel update, you should check if one reboot is required"
-echo "      - Type 'wg' in command line."
-echo "      - If an error appaired, please reboot."
 echo ""
 echo "  - To access your wireguard-ui please open a new ssh connexion"
 echo "      - ssh -L 5000:localhost:5000 user@myserver.domain.tld"
