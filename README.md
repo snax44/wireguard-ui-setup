@@ -2,20 +2,28 @@
 
 A simple script to install [Wireguard](https://www.wireguard.com/) and [Wirguard-ui](https://github.com/ngoduykhanh/wireguard-ui)
 
-**Warning:**  
-- This script was made for on Debian10 only.  
-- If the server is doing something else, please be carrefull about firewall rules.
-  - Just in case all rules will be saved in /etc/iptables/rules.v4.bak & /etc/iptables/rules.v4.bak
-
 ## Features
 
 - Automate minimal installation of Wirguard and Wireguard-ui
-- Setup firewall
 - Make wireguard-ui as service
+- Setup quite strict firewall
+  - Default policy => DROP
+  - Allow loopback ipv4 & ipv6
+  - Allow Outgoing SSH, HTTPs, HTTP, DNS, Ping
+  - Allow Ingoing SSH, Wireguard ($wg_port)
+  - Allow everything needed by wireguard
+- Save iptables rules in /etc/iptables/
+  - Load them at boot via /etc/network/if-up.d/iptables
+  - Backup actual rules in /etc/iptables/rules.v[4-6].bak
+
+## Prerequisites
+
+- This script was tested on Debian10 only.  
+- Be sure that the **server is fully up to date**.
+- If the server is doing something else, please be carrefull about firewall rules.
+
 
 # Usage
-
-Be sure that the server is fully up to date.  
 
 **Download the script on your server:**  
 ```bash
@@ -23,6 +31,8 @@ bash <(curl -s https://gitlab.com/maelj/wireguard-ui-setup/-/raw/master/install.
 ```
 
 **Open a new ssh connection with port forwarding:**  
+
+In command line:
 ```bash
 ssh -L 5000:localhost:5000 user@vpn_server_ip
 ```
@@ -35,8 +45,9 @@ Host myserver
 	LocalForward 5000 localhost:5000
 ```
 
-Access http://localhost:5000 from your favorite browser.  
+Browse http://localhost:5000  
 (username/password = admin)  
+
 
 # Troubleshooting
 
