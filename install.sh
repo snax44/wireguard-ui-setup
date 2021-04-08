@@ -122,8 +122,15 @@ function install() {
 
   echo ""
   echo "### Installing Wireguard-UI"
-  mkdir -m 077 $WGUI_PATH
+  if [ ! -d $WGUI_PATH ]; then
+    mkdir -m 077 $WGUI_PATH
+  fi
+
   wget -qO - $WGUI_LINK | tar xzf - -C $WGUI_PATH
+
+  if [ -f $WGUI_BIN_PATH/wireguard-ui ]; then
+    rm $WGUI_BIN_PATH/wireguard-ui
+  fi
   ln -s $WGUI_PATH/wireguard-ui $WGUI_BIN_PATH/wireguard-ui
 }
 
@@ -138,13 +145,13 @@ function firewall_conf() {
   echo ""
   echo "### Firewall configuration"
 
-  if [ "$(which iptables)" = "" ]; then
+  if [ ! $(which iptables)  ]; then
     echo ""
     echo "### iptables is required. Let's install it."
     apt install iptables -y
   fi
 
-  if ! [ -d /etc/iptables ]; then
+  if [ ! -d /etc/iptables ]; then
     mkdir -m 755 /etc/iptables
   fi
 
