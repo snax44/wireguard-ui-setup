@@ -121,11 +121,11 @@ function install() {
 
   echo ""
   echo "### Update & Upgrade"
-  apt update && apt full-upgrade -y
+  apt -qq update && apt -qq full-upgrade -y
 
   echo ""
   echo "### Installing WireGuard"
-  apt install linux-headers-$(uname --kernel-release) wireguard -y
+  apt -qq install linux-headers-$(uname --kernel-release) wireguard -y
 
   echo ""
   echo "### Installing Wireguard-UI"
@@ -155,7 +155,7 @@ function firewall_conf() {
   if [ ! $(which iptables)  ]; then
     echo ""
     echo "### iptables is required. Let's install it."
-    apt install iptables -y
+    apt -qq install iptables -y
   fi
 
   if [ ! -d /etc/iptables ]; then
