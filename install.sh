@@ -80,11 +80,18 @@ while [[ -z $SYS_INTERFACE ]]; do
   read -p "System network interface ? [eth0]: " SYS_INTERFACE
   SYS_INTERFACE=${SYS_INTERFACE:-"eth0"}
 done
-while ! [[ $SSH_PORT =~ ^[0-9]+$ ]]; do
+while ! [[ $STRICT_FIREWALL =~ ^(y|n)$ ]]; do
   echo "---"
-  read -p "SSH port ? [22]: " SSH_PORT
-  SSH_PORT=${SSH_PORT:-"22"}
+  read -p "Set the strict firewall ? [y/N]: " STRICT_FIREWALL
+  STRICT_FIREWALL=${STRICT_FIREWALL:-"n"}
 done
+if [ "$STRICT_FIREWALL" == "y" ]; then
+  while ! [[ $SSH_PORT =~ ^[0-9]+$ ]]; do
+    echo "---"
+    read -p "SSH port ? [22]: " SSH_PORT
+    SSH_PORT=${SSH_PORT:-"22"}
+  done
+fi
 
 install
 network_conf
@@ -171,54 +178,69 @@ function firewall_conf() {
   /sbin/iptables-save > /etc/iptables/rules.v4.bak
   /sbin/ip6tables-save > /etc/iptables/rules.v6.bak
 
-  RULES_4=(
-  "INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT"
-  "INPUT -i lo -m comment --comment localhost-network -j ACCEPT"
-  "INPUT -i $WG_INTERFACE -m comment --comment wireguard-network -j ACCEPT"
-  "INPUT -p tcp -m tcp --dport $SSH_PORT -j ACCEPT"
-  "INPUT -p icmp -m icmp --icmp-type 8 -m comment --comment Allow-ping -j ACCEPT"
-  "INPUT -p udp -m udp --dport $WG_PORT -m comment --comment external-port-wireguard -j ACCEPT"
-  "FORWARD -s $WG_NETWORK -i $WG_INTERFACE -o $SYS_INTERFACE -m comment --comment Wireguard-traffic-from-$WG_INTERFACE-to-$SYS_INTERFACE -j ACCEPT"
-  "FORWARD -d $WG_NETWORK -i $SYS_INTERFACE -o $WG_INTERFACE -m comment --comment Wireguard-traffic-from-$SYS_INTERFACE-to-$WG_INTERFACE -j ACCEPT"
-  "FORWARD -d $WG_NETWORK -i $WG_INTERFACE -o $WG_INTERFACE -m comment --comment Wireguard-traffic-inside-$WG_INTERFACE -j ACCEPT"
-  "FORWARD -p tcp --syn -m limit --limit 1/second -m comment --comment Flood-&-DoS -j ACCEPT"
-  "FORWARD -p udp -m limit --limit 1/second -m comment --comment Flood-&-DoS -j ACCEPT"
-  "FORWARD -p icmp --icmp-type echo-request -m limit --limit 1/second -m comment --comment Flood-&-DoS -j ACCEPT"
-  "FORWARD -p tcp --tcp-flags SYN,ACK,FIN,RST RST -m limit --limit 1/s -m comment --comment Port-Scan -j ACCEPT"
-  "OUTPUT -m state --state RELATED,ESTABLISHED -j ACCEPT"
-  "OUTPUT -o lo -m comment --comment localhost-network -j ACCEPT"
-  "OUTPUT -o $WG_INTERFACE -m comment --comment wireguard-network -j ACCEPT"
-  "OUTPUT -p tcp -m tcp --dport 443 -j ACCEPT"
-  "OUTPUT -p tcp -m tcp --dport 80 -j ACCEPT"
-  "OUTPUT -p tcp -m tcp --dport 22 -j ACCEPT"
-  "OUTPUT -p udp -m udp --dport 53 -j ACCEPT"
-  "OUTPUT -p tcp -m tcp --dport 53 -j ACCEPT"
-  "OUTPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT"
-  "POSTROUTING -t nat -s $WG_NETWORK -o $SYS_INTERFACE -m comment --comment wireguard-nat-rule -j MASQUERADE"
-  )
+  if [ "$STRICT_FIREWALL" == "n" ]; then
+    RULES_4=(
+    "INPUT -i $WG_INTERFACE -m comment --comment wireguard-network -j ACCEPT"
+    "INPUT -p udp -m udp --dport $WG_PORT -i $SYS_INTERFACE -m comment --comment external-port-wireguard -j ACCEPT"
+    "FORWARD -s $WG_NETWORK -i $WG_INTERFACE -o $SYS_INTERFACE -m comment --comment Wireguard-traffic-from-$WG_INTERFACE-to-$SYS_INTERFACE -j ACCEPT"
+    "FORWARD -d $WG_NETWORK -i $SYS_INTERFACE -o $WG_INTERFACE -m comment --comment Wireguard-traffic-from-$SYS_INTERFACE-to-$WG_INTERFACE -j ACCEPT"
+    #"FORWARD -d $WG_NETWORK -i $WG_INTERFACE -o $WG_INTERFACE -m comment --comment Wireguard-traffic-inside-$WG_INTERFACE -j ACCEPT"
+    "POSTROUTING -t nat -s $WG_NETWORK -o $SYS_INTERFACE -m comment --comment wireguard-nat-rule -j MASQUERADE"
+    )
+  elif [ "$STRICT_FIREWALL" == "y" ]; then
+    RULES_4=(
+    "INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT"
+    "INPUT -i lo -m comment --comment localhost-network -j ACCEPT"
+    "INPUT -i $WG_INTERFACE -m comment --comment wireguard-network -j ACCEPT"
+    "INPUT -p tcp -m tcp --dport $SSH_PORT -j ACCEPT"
+    "INPUT -p icmp -m icmp --icmp-type 8 -m comment --comment Allow-ping -j ACCEPT"
+    "INPUT -p udp -m udp --dport $WG_PORT -i $SYS_INTERFACE -m comment --comment external-port-wireguard -j ACCEPT"
+    "FORWARD -s $WG_NETWORK -i $WG_INTERFACE -o $SYS_INTERFACE -m comment --comment Wireguard-traffic-from-$WG_INTERFACE-to-$SYS_INTERFACE -j ACCEPT"
+    "FORWARD -d $WG_NETWORK -i $SYS_INTERFACE -o $WG_INTERFACE -m comment --comment Wireguard-traffic-from-$SYS_INTERFACE-to-$WG_INTERFACE -j ACCEPT"
+    #"FORWARD -d $WG_NETWORK -i $WG_INTERFACE -o $WG_INTERFACE -m comment --comment Wireguard-traffic-inside-$WG_INTERFACE -j ACCEPT"
+    "FORWARD -p tcp --syn -m limit --limit 1/second -m comment --comment Flood-&-DoS -j ACCEPT"
+    "FORWARD -p udp -m limit --limit 1/second -m comment --comment Flood-&-DoS -j ACCEPT"
+    "FORWARD -p icmp --icmp-type echo-request -m limit --limit 1/second -m comment --comment Flood-&-DoS -j ACCEPT"
+    "FORWARD -p tcp --tcp-flags SYN,ACK,FIN,RST RST -m limit --limit 1/s -m comment --comment Port-Scan -j ACCEPT"
+    "OUTPUT -m state --state RELATED,ESTABLISHED -j ACCEPT"
+    "OUTPUT -o lo -m comment --comment localhost-network -j ACCEPT"
+    "OUTPUT -p tcp -m tcp --dport 443 -j ACCEPT"
+    "OUTPUT -p tcp -m tcp --dport 80 -j ACCEPT"
+    "OUTPUT -p tcp -m tcp --dport 22 -j ACCEPT"
+    "OUTPUT -p udp -m udp --dport 53 -j ACCEPT"
+    "OUTPUT -p tcp -m tcp --dport 53 -j ACCEPT"
+    "OUTPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT"
+    "POSTROUTING -t nat -s $WG_NETWORK -o $SYS_INTERFACE -m comment --comment wireguard-nat-rule -j MASQUERADE"
+    )
 
-  RULES_6=(
-  "INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT"
-  "INPUT -i lo -m comment --comment localhost-network -j ACCEPT"
-  "OUTPUT -m state --state RELATED,ESTABLISHED -j ACCEPT"
-  "OUTPUT -o lo -m comment --comment localhost-network -j ACCEPT"
-  )
+    RULES_6=(
+    "INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT"
+    "INPUT -i lo -m comment --comment localhost-network -j ACCEPT"
+    "OUTPUT -m state --state RELATED,ESTABLISHED -j ACCEPT"
+    "OUTPUT -o lo -m comment --comment localhost-network -j ACCEPT"
+    )
+
+    # Change default policy to DROP instead ACCEPT
+    iptables -P INPUT DROP
+    iptables -P FORWARD DROP
+    iptables -P OUTPUT DROP
+    ip6tables -P INPUT DROP
+    ip6tables -P FORWARD DROP
+    ip6tables -P OUTPUT DROP
+  fi
 
   # Apply rules only if they are not already present
-  for e in "${RULES_4[@]}"; do
-    iptables -C $e > /dev/null 2>&1 || iptables -A $e
-  done
-  for e in "${RULES_6[@]}"; do
-    ip6tables -C $e > /dev/null 2>&1 || ip6tables -A $e
-  done
+  if [ ! -z "$RULES_4" ]; then
+    for e in "${RULES_4[@]}"; do
+      iptables -C $e > /dev/null 2>&1 || iptables -A $e
+    done
+  fi
 
-  # Change default policy to DROP instead ACCEPT
-  iptables -P INPUT DROP
-  iptables -P FORWARD DROP
-  iptables -P OUTPUT DROP
-  ip6tables -P INPUT DROP
-  ip6tables -P FORWARD DROP
-  ip6tables -P OUTPUT DROP
+  if [ ! -z "$RULES_6" ]; then
+    for e in "${RULES_6[@]}"; do
+      ip6tables -C $e > /dev/null 2>&1 || ip6tables -A $e
+    done
+  fi
 
   # Backup allrules (old and new)
   /sbin/iptables-save > /etc/iptables/rules.v4
@@ -234,7 +256,6 @@ function firewall_conf() {
   /sbin/iptables-restore < /etc/iptables/rules.v4
   /sbin/ip6tables-restore < /etc/iptables/rules.v6" > /etc/network/if-up.d/iptables
   chmod 755 /etc/network/if-up.d/iptables
-
 }
 
 function wg_conf() {
