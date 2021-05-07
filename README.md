@@ -27,7 +27,7 @@ A simple script to install [Wireguard](https://www.wireguard.com/) and [Wirguard
 
 **Download the script on your server:**  
 ```bash
-bash <(curl -s https://gitlab.com/maelj/wireguard-ui-setup/-/raw/master/install.sh)
+bash <(curl -s https://gitlab.com/snax44/wireguard-ui-setup/-/raw/master/install.sh)
 ```
 
 **Open a new ssh connection with port forwarding:**  
