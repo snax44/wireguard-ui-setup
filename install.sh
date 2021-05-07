@@ -45,7 +45,7 @@ SYSTEMCTL_PATH="/usr/bin/systemctl"
 BACKPORTS_REPO="deb https://deb.debian.org/debian/ buster-backports main" # It's needed for Debian10, leave it blank for Debian11 (BACKPORTS_REPO="")
 
 function main() {
-cat <<EOM
+  cat <<EOM
 
 ###########################################################################
   - Please make sure that your system is fully up to date and rebooted
@@ -59,50 +59,50 @@ cat <<EOM
 
 EOM
 
-while [[ -z $ENDPOINT ]]; do
-  echo "---"
-  read -p "Enpoint (IP or FQDN): " ENDPOINT
-done
-while ! [[ $WG_PORT =~ ^[0-9]+$ ]]; do
-  echo "---"
-  read -p "Wireguard port ? [51820]: " WG_PORT
-  WG_PORT=${WG_PORT:-"51820"}
-done
-while ! [[ $WG_NETWORK =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$ ]]; do
-  echo "---"
-  read -p "Wireguard network ? [10.252.1.0/24]: " WG_NETWORK
-  WG_NETWORK=${WG_NETWORK:-"10.252.1.0/24"}
-done
-while [[ -z $WG_INTERFACE ]]; do
-  echo "---"
-  read -p "Wireguard interface ? [wg0]: " WG_INTERFACE
-  WG_INTERFACE=${WG_INTERFACE:-"wg0"}
-done
-while [[ -z $SYS_INTERFACE ]]; do
-  echo "---"
-  read -p "System network interface ? [eth0]: " SYS_INTERFACE
-  SYS_INTERFACE=${SYS_INTERFACE:-"eth0"}
-done
-while ! [[ $STRICT_FIREWALL =~ ^(y|n)$ ]]; do
-  echo "---"
-  read -p "Set the strict firewall ? [y/N]: " STRICT_FIREWALL
-  STRICT_FIREWALL=${STRICT_FIREWALL:-"n"}
-done
-if [ "$STRICT_FIREWALL" == "y" ]; then
-  while ! [[ $SSH_PORT =~ ^[0-9]+$ ]]; do
+  while [[ -z $ENDPOINT ]]; do
     echo "---"
-    read -p "SSH port ? [22]: " SSH_PORT
-    SSH_PORT=${SSH_PORT:-"22"}
+    read -p "Enpoint (IP or FQDN): " ENDPOINT
   done
-fi
+  while ! [[ $WG_PORT =~ ^[0-9]+$ ]]; do
+    echo "---"
+    read -p "Wireguard port ? [51820]: " WG_PORT
+    WG_PORT=${WG_PORT:-"51820"}
+  done
+  while ! [[ $WG_NETWORK =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$ ]]; do
+    echo "---"
+    read -p "Wireguard network ? [10.252.1.0/24]: " WG_NETWORK
+    WG_NETWORK=${WG_NETWORK:-"10.252.1.0/24"}
+  done
+  while [[ -z $WG_INTERFACE ]]; do
+    echo "---"
+    read -p "Wireguard interface ? [wg0]: " WG_INTERFACE
+    WG_INTERFACE=${WG_INTERFACE:-"wg0"}
+  done
+  while [[ -z $SYS_INTERFACE ]]; do
+    echo "---"
+    read -p "System network interface ? [eth0]: " SYS_INTERFACE
+    SYS_INTERFACE=${SYS_INTERFACE:-"eth0"}
+  done
+  while ! [[ $STRICT_FIREWALL =~ ^(y|n)$ ]]; do
+    echo "---"
+    read -p "Set the strict firewall ? [y/N]: " STRICT_FIREWALL
+    STRICT_FIREWALL=${STRICT_FIREWALL:-"n"}
+  done
+  if [ "$STRICT_FIREWALL" == "y" ]; then
+    while ! [[ $SSH_PORT =~ ^[0-9]+$ ]]; do
+      echo "---"
+      read -p "SSH port ? [22]: " SSH_PORT
+      SSH_PORT=${SSH_PORT:-"22"}
+    done
+  fi
 
-install
-network_conf
-firewall_conf
-wg_conf
-wgui_conf
+  install
+  network_conf
+  firewall_conf
+  wg_conf
+  wgui_conf
 
-cat <<EOM
+  cat <<EOM
 
 ##################################################################################
                             Setup done.
