@@ -1,12 +1,12 @@
 # wireguard-ui-setup
 
-A simple script to install [Wireguard](https://www.wireguard.com/) and [Wirguard-ui](https://github.com/ngoduykhanh/wireguard-ui)
+A simple script to install [Wireguard](https://www.wireguard.com/) and [Wireguard-ui](https://github.com/ngoduykhanh/wireguard-ui)
 
 ## Features
 
 - Automate minimal installation of Wirguard and Wireguard-ui
 - Make wireguard-ui as service
-- Setup quite strict firewall
+- Setup quite strict firewall (Optional)
   - Default policy => DROP
   - Allow loopback ipv4 & ipv6
   - Allow Outgoing SSH, HTTPs, HTTP, DNS, Ping
@@ -21,7 +21,6 @@ A simple script to install [Wireguard](https://www.wireguard.com/) and [Wirguard
 - This script was tested on Debian10 only.  
 - Be sure that the **server is fully up to date**.
 - If the server is doing something else, please be carrefull about firewall rules.
-
 
 # Usage
 
