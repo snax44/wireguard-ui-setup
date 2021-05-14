@@ -25,24 +25,12 @@
 #       - https://github.com/ngoduykhanh/wireguard-ui
 #
 ###
-
-if ! [ $(id -nu) == "root" ]; then
-  echo "Oops ! Please run this script as root"
-  exit 1
-fi
-
-if [ "$(lsb_release -is)" != "Debian" ] && [ "$(lsb_release -rs)" != "10" ]
-  then
-    echo "Oops ! This script was tested on Debian10 only."
-    exit 1
-fi
-
-# Link to the last release
-WGUI_LINK="https://github.com/ngoduykhanh/wireguard-ui/releases/download/v0.2.7/wireguard-ui-v0.2.7-linux-amd64.tar.gz"
-WGUI_PATH="/opt/wgui"                                                     # Where Wireguard-ui will be install
-WGUI_BIN_PATH="/usr/local/bin"                                            # Where the symbolic link will be make
+OS_DETECTED="$(awk '/^ID=/' /etc/*-release | awk -F'=' '{ print tolower($2) }')"
+CONTINUE_ON_UNDETECTED_OS=false                                                                                         # Set true to continue if OS is not detected properly (not recommended)
+WGUI_LINK="https://github.com/ngoduykhanh/wireguard-ui/releases/download/v0.2.7/wireguard-ui-v0.2.7-linux-amd64.tar.gz" # Link to the last release
+WGUI_PATH="/opt/wgui"                                                                                                   # Where Wireguard-ui will be install
+WGUI_BIN_PATH="/usr/local/bin"                                                                                          # Where the symbolic link will be make
 SYSTEMCTL_PATH="/usr/bin/systemctl"
-BACKPORTS_REPO="deb https://deb.debian.org/debian/ buster-backports main" # It's needed for Debian10, leave it blank for Debian11 (BACKPORTS_REPO="")
 
 function main() {
   cat <<EOM
@@ -123,6 +111,7 @@ EOM
 
 function install() {
 
+  # Wireguard is not available in Buster, so take it from backports (only if Debian Buster has been detected in detect_os)
   if [ ! -z  "$BACKPORTS_REPO" ]; then
     if ! grep -q "^$BACKPORTS_REPO" /etc/apt/sources.list /etc/apt/sources.list.d/* > /dev/null 2>&1 ; then
       echo ""
@@ -268,7 +257,7 @@ function wg_conf() {
   echo "### Making default Wireguard conf"
   umask 077 /etc/wireguard/
   touch /etc/wireguard/$WG_INTERFACE.conf
-  systemctl enable wg-quick@$WG_INTERFACE.service
+  $SYSTEMCTL_PATH enable wg-quick@$WG_INTERFACE.service
 }
 
 function wgui_conf() {
@@ -287,8 +276,8 @@ function wgui_conf() {
   [Install]
   WantedBy=multi-user.target" > /etc/systemd/system/wgui_http.service
 
-  systemctl enable wgui_http.service
-  systemctl start wgui_http.service
+  $SYSTEMCTL_PATH enable wgui_http.service
+  $SYSTEMCTL_PATH start wgui_http.service
 
   echo "[Unit]
   Description=Restart WireGuard
@@ -307,7 +296,81 @@ function wgui_conf() {
   [Install]
   WantedBy=multi-user.target" > /etc/systemd/system/wgui.path
 
-  systemctl enable wgui.{path,service}
-  systemctl start wgui.{path,service}
+  $SYSTEMCTL_PATH enable wgui.{path,service}
+  $SYSTEMCTL_PATH start wgui.{path,service}
 }
-main
+
+function msg(){
+
+  local GREEN="\\033[1;32m"
+  local NORMAL="\\033[0;39m"
+  local RED="\\033[1;31m"
+  local PINK="\\033[1;35m"
+  local BLUE="\\033[1;34m"
+  local WHITE="\\033[0;02m"
+  local YELLOW="\\033[1;33m"
+
+  if [ "$1" == "ok" ]; then
+    echo -e "[$GREEN  OK  $NORMAL] $2"
+  elif [ "$1" == "ko" ]; then
+    echo -e "[$RED ERROR $NORMAL] $2"
+  elif [ "$1" == "warn" ]; then
+    echo -e "[$YELLOW WARN $NORMAL] $2"
+  elif [ "$1" == "info" ]; then
+    echo -e "[$BLUE INFO $NORMAL] $2"
+  fi
+}
+
+function not_supported_os(){
+  msg ko "Oops This OS is not supported yet !"
+  echo "    Do not hesitate to contribute for a better compatibility
+            https://gitlab.com/snax44/wireguard-ui-setup"
+}
+
+function detect_os(){
+  if [[ "$OS_DETECTED" == "debian" ]]; then
+    if grep -q "bullseye" /etc/os-release; then
+      msg info "OS detected : Debian 11 (Bullseye)"
+      main
+    elif grep -q "buster" /etc/os-release; then
+      msg info "OS detected : Debian 10 (Buster)"
+      BACKPORTS_REPO="deb https://deb.debian.org/debian/ buster-backports main"
+      main
+    fi
+
+  elif [[ "$OS_DETECTED" == "ubuntu" ]]; then
+    if grep -q "focal" /etc/os-release; then
+      msg info "OS detected : Ubuntu Focal"
+      main
+    elif grep -q "groovy" /etc/os-release; then
+      msg info "OS detected : Ubuntu Groovy"
+      main
+    fi
+
+  elif [[ "$OS_DETECTED" == "fedora" ]]; then
+    msg info "OS detected : Fedora"
+    not_supported_os
+  elif [[ "$OS_DETECTED" == "centos" ]]; then
+    msg info "OS detected : Centos"
+    not_supported_os
+  elif [[ "$OS_DETECTED" == "arch" ]]; then
+    msg info "OS detected : Archlinux"
+    not_supported_os
+  else
+    if $CONTINUE_ON_UNDETECTED_OS; then
+      msg warn "Unable to detect os. Keep going anyway in 5s"
+      sleep 5
+      main
+    else
+      msg ko "Unable to detect os and CONTINUE_ON_UNDETECTED_OS is set to false"
+      exit 1
+    fi
+  fi
+}
+
+if ! [ $(id -nu) == "root" ]; then
+  msg ko "Oops ! Please run this script as root"
+  exit 1
+fi
+
+detect_os
