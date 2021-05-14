@@ -115,7 +115,7 @@ function install() {
   if [ ! -z  "$BACKPORTS_REPO" ]; then
     if ! grep -q "^$BACKPORTS_REPO" /etc/apt/sources.list /etc/apt/sources.list.d/* > /dev/null 2>&1 ; then
       echo ""
-      echo "### Enable Backports"
+      msg info "Enable Backports for Debian Buster"
       echo $BACKPORTS_REPO >> /etc/apt/sources.list
     fi
   fi
@@ -155,8 +155,14 @@ function firewall_conf() {
 
   if [ ! $(which iptables)  ]; then
     echo ""
-    echo "### iptables is required. Let's install it."
+    msg info "iptables is required. Let's install it."
     apt -qq install iptables -y
+  fi
+
+  if [ ! $(which ifup)  ]; then
+    echo ""
+    msg info "ifupdown is required. Let's install it."
+    apt -qq install ifupdown -y
   fi
 
   if [ ! -d /etc/iptables ]; then
