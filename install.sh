@@ -31,6 +31,8 @@ WGUI_LINK="https://github.com/ngoduykhanh/wireguard-ui/releases/download/v0.2.7/
 WGUI_PATH="/opt/wgui"                                                                                                   # Where Wireguard-ui will be install
 WGUI_BIN_PATH="/usr/local/bin"                                                                                          # Where the symbolic link will be make
 SYSTEMCTL_PATH="/usr/bin/systemctl"
+SYS_INTERFACE_GUESS=$(ip route show default | awk '/default/ {print $5}')
+PUBLIC_IP="$(curl -s icanhazip.com)"
 
 function main() {
   cat <<EOM
@@ -49,7 +51,8 @@ EOM
 
   while [[ -z $ENDPOINT ]]; do
     echo "---"
-    read -p "Enpoint (IP or FQDN): " ENDPOINT
+    read -p "Enpoint [$PUBLIC_IP](fqdn possible as well): " ENDPOINT
+    ENDPOINT=${ENDPOINT:-$PUBLIC_IP}
   done
   while ! [[ $WG_PORT =~ ^[0-9]+$ ]]; do
     echo "---"
@@ -68,8 +71,8 @@ EOM
   done
   while [[ -z $SYS_INTERFACE ]]; do
     echo "---"
-    read -p "System network interface ? [eth0]: " SYS_INTERFACE
-    SYS_INTERFACE=${SYS_INTERFACE:-"eth0"}
+    read -p "System network interface ? [$SYS_INTERFACE_GUESS]: " SYS_INTERFACE
+    SYS_INTERFACE=${SYS_INTERFACE:-$SYS_INTERFACE_GUESS}
   done
   while ! [[ $STRICT_FIREWALL =~ ^(y|n)$ ]]; do
     echo "---"
