@@ -16,21 +16,23 @@ A simple script to install [Wireguard](https://www.wireguard.com/) and [Wireguar
   - Load them at boot via /etc/network/if-up.d/iptables
   - Backup actual rules in /etc/iptables/rules.v[4-6].bak
 
-## Prerequisites
+## Requirement and Warning note
 
-- This script was tested on Debian10 only.  
 - Be sure that the **server is fully up to date**.
-- If the server is doing something else, please be carrefull about firewall rules.
+- If the server is doing something else, please at the question "Set the strict firewall" select `n`
 
 # Usage
 
-**Download the script on your server:**  
+## Download and execute the script on your server  
+
 ```bash
 bash <(curl -s https://gitlab.com/snax44/wireguard-ui-setup/-/raw/master/install.sh)
 ```
+Just answer 6 questions and take a coffee.  
+
+## Enjoy your new VPN
 
 **Open a new ssh connection with port forwarding:**  
-
 In command line:
 ```bash
 ssh -L 5000:localhost:5000 user@vpn_server_ip
@@ -44,6 +46,8 @@ Host myserver
 	LocalForward 5000 localhost:5000
 ```
 
+**Browse to Wireguard UI:**  
+
 Browse http://localhost:5000  
 (username/password = admin)  
 
@@ -54,6 +58,13 @@ Browse http://localhost:5000
 
 Please check that linux-headers-$(uname -r) was installed propely.
 
+# Tested on
+
+- Debian Buster
+- Debian Bulseye
+- Ubuntu 20.04
+- Ubuntu 20.10
+
 # Credits
 
 - Wireguard:
@@ -61,6 +72,3 @@ Please check that linux-headers-$(uname -r) was installed propely.
    - https://github.com/WireGuard
 - Wireguard-ui:
    - https://github.com/ngoduykhanh/wireguard-ui
-
-
-# TODO:
