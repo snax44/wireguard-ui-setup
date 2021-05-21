@@ -2,6 +2,8 @@
 
 A simple script to install [Wireguard](https://www.wireguard.com/) and [Wireguard-ui](https://github.com/ngoduykhanh/wireguard-ui)
 
+:fr: [French version](README_fr.md)
+
 ## Features
 
 - Automate minimal installation of Wirguard and Wireguard-ui
