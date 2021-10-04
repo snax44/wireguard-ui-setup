@@ -51,3 +51,5 @@ Host myserver
 
 Browse http://localhost:5000  
 (utilisateur/mdp = admin)  
+
+:bulb: Le mot de passe par défaut peut être changé dans le fichier: /opt/wgui/db/server/users.json  
