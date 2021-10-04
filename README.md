@@ -53,6 +53,7 @@ Host myserver
 Browse http://localhost:5000  
 (username/password = admin)  
 
+:bulb: Default password can be changed in /opt/wgui/db/server/users.json  
 
 # Troubleshooting
 
