@@ -32,58 +32,74 @@ WGUI_PATH="/opt/wgui"                                                           
 WGUI_BIN_PATH="/usr/local/bin"                                                                                          # Where the symbolic link will be make
 SYSTEMCTL_PATH="/usr/bin/systemctl"
 SYS_INTERFACE_GUESS=$(ip route show default | awk '/default/ {print $5}')
-PUBLIC_IP="$(curl -s icanhazip.com)"
+PUBLIC_IP="$(curl -s ifconfig.me/ip)"
 
 function main() {
-  cat <<EOM
 
-###########################################################################
-  - Please make sure that your system is fully up to date and rebooted
+  if ( ! whiptail --title "Warning" \
+      --defaultno \
+      --yes-button Continue \
+      --no-button Abort \
+      --yesno "\n
+    - Please make sure that your system is fully up to date and rebooted
       - The current running kernel must be the same as installed
       - No pending reboot
-      - You can run the command below and then run again this script
-          apt update && apt full-upgrade -y && init 6
-
-  - Press Ctrl^C to exit or ignore this message and continue.
-###########################################################################
-
-EOM
+      - You can run this command below and then run again this script
+            apt update && apt full-upgrade -y && init 6" \
+      20 85)
+  then
+    exit 0
+  fi
 
   while [[ -z $ENDPOINT ]]; do
-    echo "---"
-    read -p "Enpoint [$PUBLIC_IP](fqdn possible as well): " ENDPOINT
-    ENDPOINT=${ENDPOINT:-$PUBLIC_IP}
+    ENDPOINT=$(whiptail --title "Define your endpoint" --inputbox "Enter here the endpoint (ip or fqdn) the client will try to connect to." --nocancel  10 80 $PUBLIC_IP 3>&1 1>&2 2>&3)
   done
   while ! [[ $WG_PORT =~ ^[0-9]+$ ]]; do
-    echo "---"
-    read -p "Wireguard port ? [51820]: " WG_PORT
-    WG_PORT=${WG_PORT:-"51820"}
+    WG_PORT=$(whiptail --title "Define the port" --inputbox "Enter here the port the client will try to connect on." --nocancel  10 80 "51820" 3>&1 1>&2 2>&3)
   done
   while ! [[ $WG_NETWORK =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$ ]]; do
-    echo "---"
-    read -p "Wireguard network ? [10.252.1.0/24]: " WG_NETWORK
-    WG_NETWORK=${WG_NETWORK:-"10.252.1.0/24"}
+    WG_NETWORK=$(whiptail --title "Define the network" --inputbox "Enter here the network range." --nocancel  10 80 "10.252.1.0/24" 3>&1 1>&2 2>&3)
   done
   while [[ -z $WG_INTERFACE ]]; do
-    echo "---"
-    read -p "Wireguard interface ? [wg0]: " WG_INTERFACE
-    WG_INTERFACE=${WG_INTERFACE:-"wg0"}
+    WG_INTERFACE=$(whiptail --title "Define the interface name" --inputbox "Enter here interface name." --nocancel  10 80 "wg0" 3>&1 1>&2 2>&3)
   done
   while [[ -z $SYS_INTERFACE ]]; do
-    echo "---"
-    read -p "System network interface ? [$SYS_INTERFACE_GUESS]: " SYS_INTERFACE
-    SYS_INTERFACE=${SYS_INTERFACE:-$SYS_INTERFACE_GUESS}
+    SYS_INTERFACE=$(whiptail --title "Define system interface" --inputbox "Enter here system interface name." --nocancel 10 80 $SYS_INTERFACE_GUESS 3>&1 1>&2 2>&3)
   done
   while ! [[ $STRICT_FIREWALL =~ ^(y|n)$ ]]; do
-    echo "---"
-    read -p "Set the strict firewall ? [y/N]: " STRICT_FIREWALL
-    STRICT_FIREWALL=${STRICT_FIREWALL:-"n"}
+    if (whiptail --title "Select firewall type" \
+        --defaultno \
+        --yes-button Strict \
+        --no-button Minimal \
+        --scrolltext \
+        --yesno "\n
+        Minimal firewall: \n
+          - INPUT: Accept connexions on $WG_INTERFACE
+          - INPUT: Accept connexions on $SYS_INTERFACE on port $WG_PORT
+          - FORWARD: Accept traffic from $WG_INTERFACE to $SYS_INTERFACE
+          - FORWARD: Accept traffic from $SYS_INTERFACE to $WG_INTERFACE
+          - POSTROUTING: MASQUERADE paquets from $WG_NETWORK to $SYS_INTERFACE
+
+        Strict firewall (Same as Minimal + rules below): \n
+          - INPUT: Accept Related and Established connexions
+          - INPUT: Accept connexions on loopback interface
+          - INPUT: Accept SSH, ICMP connexions
+          - FORWARD: Some rules against Flood, Ddos and port scanning.
+          - OUTPUT: Accept Related and Established connexions
+          - OUTPUT: Accept connexions on loopback interface
+          - OUTPUT: Accept HTTPs, HTTP, SSH, DNS, ICMP connexions
+          - Default policy: DROP
+
+        In both case all existing rules will be saved in /etc/iptables/rules.v[4,6]" \
+        30 100) then
+      STRICT_FIREWALL="y"
+    else
+      STRICT_FIREWALL="n"
+    fi
   done
   if [ "$STRICT_FIREWALL" == "y" ]; then
     while ! [[ $SSH_PORT =~ ^[0-9]+$ ]]; do
-      echo "---"
-      read -p "SSH port ? [22]: " SSH_PORT
-      SSH_PORT=${SSH_PORT:-"22"}
+      SSH_PORT=$(whiptail --title "SSH port" --inputbox "Enter here the port openSSH is listening on." --nocancel  10 80 "22" 3>&1 1>&2 2>&3)
     done
   fi
 
@@ -93,23 +109,16 @@ EOM
   wg_conf
   wgui_conf
 
-  cat <<EOM
-
-##################################################################################
-                            Setup done.
-
-  - Your iptables rules was saved just in case in:
+  whiptail --title "Setup done." \
+           --msgbox "\n
+    - Your iptables rules were saved in:
       - /etc/iptables/rules.v4.bak
       - /etc/iptables/rules.v6.bak
 
-
-  - To access your wireguard-ui please open a new ssh connexion
+    - To access your wireguard-ui please open a new ssh connexion
       - ssh -L 5000:localhost:5000 user@myserver.domain.tld
-      - And browse to http://localhost:5000
-
-##################################################################################"
-
-EOM
+      - And browse to http://localhost:5000" \
+  20 80
 }
 
 function install() {
@@ -187,7 +196,6 @@ function firewall_conf() {
     "INPUT -p udp -m udp --dport $WG_PORT -i $SYS_INTERFACE -m comment --comment external-port-wireguard -j ACCEPT"
     "FORWARD -s $WG_NETWORK -i $WG_INTERFACE -o $SYS_INTERFACE -m comment --comment Wireguard-traffic-from-$WG_INTERFACE-to-$SYS_INTERFACE -j ACCEPT"
     "FORWARD -d $WG_NETWORK -i $SYS_INTERFACE -o $WG_INTERFACE -m comment --comment Wireguard-traffic-from-$SYS_INTERFACE-to-$WG_INTERFACE -j ACCEPT"
-    #"FORWARD -d $WG_NETWORK -i $WG_INTERFACE -o $WG_INTERFACE -m comment --comment Wireguard-traffic-inside-$WG_INTERFACE -j ACCEPT"
     "POSTROUTING -t nat -s $WG_NETWORK -o $SYS_INTERFACE -m comment --comment wireguard-nat-rule -j MASQUERADE"
     )
   elif [ "$STRICT_FIREWALL" == "y" ]; then
@@ -200,7 +208,6 @@ function firewall_conf() {
     "INPUT -p udp -m udp --dport $WG_PORT -i $SYS_INTERFACE -m comment --comment external-port-wireguard -j ACCEPT"
     "FORWARD -s $WG_NETWORK -i $WG_INTERFACE -o $SYS_INTERFACE -m comment --comment Wireguard-traffic-from-$WG_INTERFACE-to-$SYS_INTERFACE -j ACCEPT"
     "FORWARD -d $WG_NETWORK -i $SYS_INTERFACE -o $WG_INTERFACE -m comment --comment Wireguard-traffic-from-$SYS_INTERFACE-to-$WG_INTERFACE -j ACCEPT"
-    #"FORWARD -d $WG_NETWORK -i $WG_INTERFACE -o $WG_INTERFACE -m comment --comment Wireguard-traffic-inside-$WG_INTERFACE -j ACCEPT"
     "FORWARD -p tcp --syn -m limit --limit 1/second -m comment --comment Flood-&-DoS -j ACCEPT"
     "FORWARD -p udp -m limit --limit 1/second -m comment --comment Flood-&-DoS -j ACCEPT"
     "FORWARD -p icmp --icmp-type echo-request -m limit --limit 1/second -m comment --comment Flood-&-DoS -j ACCEPT"
