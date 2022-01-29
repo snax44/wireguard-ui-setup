@@ -1,6 +1,7 @@
 # wireguard-ui-setup
 
-A simple script to install [Wireguard](https://www.wireguard.com/) and [Wireguard-ui](https://github.com/ngoduykhanh/wireguard-ui)
+A simple script to install [Wireguard](https://www.wireguard.com/) and [Wireguard-ui](https://github.com/ngoduykhanh/wireguard-ui).
+Like commercial VPN provider, here the firewall is setup to forward all traffic from clients. 
 
 :fr: [French version](README_fr.md)
 
@@ -11,7 +12,7 @@ A simple script to install [Wireguard](https://www.wireguard.com/) and [Wireguar
 - Setup quite strict firewall (Optional)
   - Default policy => DROP
   - Allow loopback ipv4 & ipv6
-  - Allow Outgoing SSH, HTTPs, HTTP, DNS, Ping
+  - Allow Outgoing SSH, HTTPs, HTTP, DNS, ICMP
   - Allow Ingoing SSH, Wireguard ($wg_port)
   - Allow everything needed by wireguard
 - Save iptables rules in /etc/iptables/
@@ -63,10 +64,14 @@ Please check that linux-headers-$(uname -r) was installed propely.
 
 # Tested on
 
+- Amd64 arch
+
 - Debian Buster
 - Debian Bulseye
 - Ubuntu 20.04
 - Ubuntu 20.10
+- Ubuntu 21.04
+- Ubuntu 21.10
 
 # Credits
 

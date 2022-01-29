@@ -1,6 +1,7 @@
 # wireguard-ui-setup
 
 Un simple script pour installer [Wireguard](https://www.wireguard.com/) et [Wireguard-ui](https://github.com/ngoduykhanh/wireguard-ui) simplement et rapidement.
+Comme avec les bien connu fournisseur de VPN, le firewall est ici configuré pour transferer tout le traffic des clients.  
 
 ## Fonctionnalitées
 
@@ -9,7 +10,7 @@ Un simple script pour installer [Wireguard](https://www.wireguard.com/) et [Wire
 - Configure un parfeu pluôt strict (en option)
   - Par défaut tout est ignoré
   - Autorise loopback ipv4 & ipv6
-  - Autorise les connexions SSH, HTTPs, HTTP, DNS, Ping sortantes
+  - Autorise les connexions SSH, HTTPs, HTTP, DNS, ICMP sortantes
   - Autorise les connexions SSH, Wireguard ($wg_port) entrantes
   - Autorise tout ce qui est necessaire pour wireguard
 - Sauvegarde des règles dans /etc/iptables/
