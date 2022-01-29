@@ -1,7 +1,7 @@
 # wireguard-ui-setup
 
 A simple script to install [Wireguard](https://www.wireguard.com/) and [Wireguard-ui](https://github.com/ngoduykhanh/wireguard-ui).
-Like commercial VPN provider, here the firewall is setup to forward all traffic from clients. 
+Like commercial VPN provider, here the firewall is setup to forward all traffic from clients.
 
 :fr: [French version](README_fr.md)
 
@@ -62,12 +62,10 @@ Browse http://localhost:5000
 
 Please check that linux-headers-$(uname -r) was installed propely.
 
-# Tested on
-
-- Amd64 arch
+# Tested on Amd64
 
 - Debian Buster
-- Debian Bulseye
+- Debian Bulseye (Recommended)
 - Ubuntu 20.04
 - Ubuntu 20.10
 - Ubuntu 21.04
