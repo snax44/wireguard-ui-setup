@@ -346,20 +346,22 @@ function detect_os(){
       BACKPORTS_REPO="deb https://deb.debian.org/debian/ buster-backports main"
       main
     fi
+
   elif [[ "$OS_DETECTED" == "ubuntu" ]]; then
     if grep -q "focal" /etc/os-release; then
-      # Ubuntu 20.04
-      msg info "OS detected : Ubuntu Focal"
+      msg info "OS detected : Ubuntu Focal (20.04)"
       main
     elif grep -q "groovy" /etc/os-release; then
-      # Ubuntu 20.10
-      msg info "OS detected : Ubuntu Groovy"
+      msg info "OS detected : Ubuntu Groovy (20.10)"
       main
     elif grep -q "hirsute" /etc/os-release; then
-      # Ubuntu 21.04
-      msg info "OS detected : Ubuntu Hirsute"
+      msg info "OS detected : Ubuntu Hirsute (21.04)"
+      main
+    elif grep -q "impish" /etc/os-release; then
+      msg info "OS detected : Ubuntu Impish (21.10)"
       main
     fi
+
   elif [[ "$OS_DETECTED" == "fedora" ]]; then
     msg info "OS detected : Fedora"
     not_supported_os
