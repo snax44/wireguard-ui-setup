@@ -129,7 +129,7 @@ function install() {
 
   echo ""
   echo "### Installing WireGuard"
-  apt -qq install linux-headers-$(uname --kernel-release) wireguard -y
+  apt -qq install wireguard -y
 
   echo ""
   echo "### Installing Wireguard-UI"
