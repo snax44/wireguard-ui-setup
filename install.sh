@@ -27,7 +27,7 @@
 ###
 OS_DETECTED="$(awk '/^ID=/' /etc/*-release | awk -F'=' '{ print tolower($2) }')"
 CONTINUE_ON_UNDETECTED_OS=false                                                                                         # Set true to continue if OS is not detected properly (not recommended)
-WGUI_LINK="https://github.com/ngoduykhanh/wireguard-ui/releases/download/v0.3.7/wireguard-ui-v0.3.7-linux-amd64.tar.gz" # Link to the last release
+WGUI_LINK="https://github.com/ngoduykhanh/wireguard-ui/releases/download/v0.4.0/wireguard-ui-v0.4.0-linux-amd64.tar.gz" # Link to the last release
 WGUI_PATH="/opt/wgui"                                                                                                   # Where Wireguard-ui will be install
 WGUI_BIN_PATH="/usr/local/bin"                                                                                          # Where the symbolic link will be make
 SYSTEMCTL_PATH="/usr/bin/systemctl"
