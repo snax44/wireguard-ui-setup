@@ -27,7 +27,7 @@
 ###
 OS_DETECTED="$(awk '/^ID=/' /etc/*-release | awk -F'=' '{ print tolower($2) }')"
 CONTINUE_ON_UNDETECTED_OS=false                                                                                         # Set true to continue if OS is not detected properly (not recommended)
-WGUI_LINK="https://github.com/ngoduykhanh/wireguard-ui/releases/download/v0.4.0/wireguard-ui-v0.4.0-linux-amd64.tar.gz" # Link to the last release
+WGUI_LINK="https://github.com/ngoduykhanh/wireguard-ui/releases/download/v0.5.1/wireguard-ui-v0.5.1-linux-amd64.tar.gz" # Link to the last release
 WGUI_PATH="/opt/wgui"                                                                                                   # Where Wireguard-ui will be install
 WGUI_BIN_PATH="/usr/local/bin"                                                                                          # Where the symbolic link will be make
 SYSTEMCTL_PATH="/usr/bin/systemctl"
@@ -98,7 +98,7 @@ EOM
 ##################################################################################
                             Setup done.
 
-  - Your iptables rules was saved just in case in:
+  - Your iptables rules have been saved just in case in:
       - /etc/iptables/rules.v4.bak
       - /etc/iptables/rules.v6.bak
 
@@ -172,7 +172,7 @@ function firewall_conf() {
     mkdir -m 755 /etc/iptables
   fi
 
-  # Stop fail2ban if it present to don't save banned IPs
+  # Stop fail2ban if it present to not save banned IPs
   if [ $(which fail2ban-client) ]; then
     fail2ban-client stop
   fi
@@ -187,7 +187,6 @@ function firewall_conf() {
     "INPUT -p udp -m udp --dport $WG_PORT -i $SYS_INTERFACE -m comment --comment external-port-wireguard -j ACCEPT"
     "FORWARD -s $WG_NETWORK -i $WG_INTERFACE -o $SYS_INTERFACE -m comment --comment Wireguard-traffic-from-$WG_INTERFACE-to-$SYS_INTERFACE -j ACCEPT"
     "FORWARD -d $WG_NETWORK -i $SYS_INTERFACE -o $WG_INTERFACE -m comment --comment Wireguard-traffic-from-$SYS_INTERFACE-to-$WG_INTERFACE -j ACCEPT"
-    #"FORWARD -d $WG_NETWORK -i $WG_INTERFACE -o $WG_INTERFACE -m comment --comment Wireguard-traffic-inside-$WG_INTERFACE -j ACCEPT"
     "POSTROUTING -t nat -s $WG_NETWORK -o $SYS_INTERFACE -m comment --comment wireguard-nat-rule -j MASQUERADE"
     )
   elif [ "$STRICT_FIREWALL" == "y" ]; then
@@ -200,7 +199,6 @@ function firewall_conf() {
     "INPUT -p udp -m udp --dport $WG_PORT -i $SYS_INTERFACE -m comment --comment external-port-wireguard -j ACCEPT"
     "FORWARD -s $WG_NETWORK -i $WG_INTERFACE -o $SYS_INTERFACE -m comment --comment Wireguard-traffic-from-$WG_INTERFACE-to-$SYS_INTERFACE -j ACCEPT"
     "FORWARD -d $WG_NETWORK -i $SYS_INTERFACE -o $WG_INTERFACE -m comment --comment Wireguard-traffic-from-$SYS_INTERFACE-to-$WG_INTERFACE -j ACCEPT"
-    #"FORWARD -d $WG_NETWORK -i $WG_INTERFACE -o $WG_INTERFACE -m comment --comment Wireguard-traffic-inside-$WG_INTERFACE -j ACCEPT"
     "FORWARD -p tcp --syn -m limit --limit 1/second -m comment --comment Flood-&-DoS -j ACCEPT"
     "FORWARD -p udp -m limit --limit 1/second -m comment --comment Flood-&-DoS -j ACCEPT"
     "FORWARD -p icmp --icmp-type echo-request -m limit --limit 1/second -m comment --comment Flood-&-DoS -j ACCEPT"
