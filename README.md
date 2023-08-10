@@ -21,7 +21,7 @@ Like commercial VPN provider, here the firewall is setup to forward all traffic 
 
 ## Requirement and Warning note
 
-- Be sure that the **server is fully up to date**.
+- Make sure the **server is fully up to date**.
 - If the server is doing something else, please at the question "Set the strict firewall" select `n`
 
 # Usage
