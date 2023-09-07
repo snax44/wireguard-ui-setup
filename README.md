@@ -65,7 +65,8 @@ Please check that linux-headers-$(uname -r) was installed propely.
 # Tested on Amd64
 
 - Debian Buster
-- Debian Bulseye (Recommended)
+- Debian Bullseye
+- Debian Bookworm (Recommended)
 - Ubuntu 20.04
 - Ubuntu 20.10
 - Ubuntu 21.04

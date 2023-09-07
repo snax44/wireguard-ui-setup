@@ -336,13 +336,25 @@ function not_supported_os(){
 
 function detect_os(){
   if [[ "$OS_DETECTED" == "debian" ]]; then
-    if grep -q "bullseye" /etc/os-release; then
+    if grep -q "bookworm" /etc/os-release; then
+      msg info "OS detected : Debian 12 (Bookworm)"
+      main
+    elif grep -q "bullseye" /etc/os-release; then
       msg info "OS detected : Debian 11 (Bullseye)"
       main
     elif grep -q "buster" /etc/os-release; then
       msg info "OS detected : Debian 10 (Buster)"
       BACKPORTS_REPO="deb https://deb.debian.org/debian/ buster-backports main"
       main
+    else
+      if $CONTINUE_ON_UNDETECTED_OS; then
+        msg warn "Unable to detect os. Keep going anyway in 5s"
+        sleep 5
+        main
+      else
+        msg ko "Unable to detect os and CONTINUE_ON_UNDETECTED_OS is set to false"
+        exit 1
+      fi
     fi
 
   elif [[ "$OS_DETECTED" == "ubuntu" ]]; then
@@ -358,6 +370,15 @@ function detect_os(){
     elif grep -q "impish" /etc/os-release; then
       msg info "OS detected : Ubuntu Impish (21.10)"
       main
+    else
+      if $CONTINUE_ON_UNDETECTED_OS; then
+        msg warn "Unable to detect os. Keep going anyway in 5s"
+        sleep 5
+        main
+      else
+        msg ko "Unable to detect os and CONTINUE_ON_UNDETECTED_OS is set to false"
+        exit 1
+      fi
     fi
 
   elif [[ "$OS_DETECTED" == "fedora" ]]; then
@@ -385,5 +406,4 @@ if ! [ $(id -nu) == "root" ]; then
   msg ko "Oops ! Please run this script as root"
   exit 1
 fi
-
 detect_os
