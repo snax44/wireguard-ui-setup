@@ -1,3 +1,6 @@
+:exclamation: Since I do not use that script so much anymore it might slowly get buggy and out of date.  
+You've been warned.  
+
 # wireguard-ui-setup
 
 A simple script to install [Wireguard](https://www.wireguard.com/) and [Wireguard-ui](https://github.com/ngoduykhanh/wireguard-ui).
@@ -61,6 +64,35 @@ Browse http://localhost:5000
 ## wg-quick<!-- -->@wg0.service failed to start
 
 Please check that linux-headers-$(uname -r) was installed propely.
+
+## OS undetected on Distro suppose to work
+
+If you get the message `[ ERROR ] Unable to detect os and CONTINUE_ON_UNDETECTED_OS is set to false` on a system that is suppose to work fine,  
+Make sure the command `awk '/^ID=/' /etc/*-release | awk -F'=' '{ print tolower($2) }'` returns only one line containing the distro name (e.g debian, ubuntu etc...).  
+If not, it might be caused by an other release file in `/etc` such as `/etc/cloud-release`.  
+
+As a quick fix you can force the script to only look at `/etc/os-release` instead of `/etc/*-release`.  
+
+**1. Download the script**
+```
+curl -s https://gitlab.com/snax44/wireguard-ui-setup/-/raw/master/install.sh -O install.sh
+```
+
+**2. Modify the script (Line 28) with vim, nano or whatever editor you like.**
+
+From:
+```
+OS_DETECTED="$(awk '/^ID=/' /etc/*-release | awk -F'=' '{ print tolower($2) }')"
+```
+To
+```
+OS_DETECTED="$(awk '/^ID=/' /etc/os-release | awk -F'=' '{ print tolower($2) }')"
+```
+
+**3. Run the script**
+```
+bash install.sh
+```
 
 # Tested on Amd64
 
